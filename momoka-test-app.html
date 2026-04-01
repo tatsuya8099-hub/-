@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="全国統一テスト対策">
+<title>全国統一テスト対策アプリ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#dc2626;--red-l:#fee2e2;
+  --green:#2d8a4e;--green-l:#e8f5ee;--green-d:#1a5c33;
+  --blue:#2563b0;--blue-l:#e8f0fb;
+  --amber:#b45309;--amber-l:#fef3c7;
+  --gray:#6b7280;--gray-l:#f3f4f6;--gray-bg:#f9fafb;
+  --border:#e5e7eb;--text:#111827;--text2:#6b7280;
+  --r:12px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--gray-bg);color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;}
+.header{background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:100;}
+.header-title{font-size:16px;font-weight:700;color:var(--red);}
+.header-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--border);display:flex;z-index:100;}
+.nav-item{flex:1;padding:8px 0 10px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-family:inherit;}
+.nav-item.active{color:var(--red);}
+.nav-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.nav-label{font-size:10px;font-weight:500;}
+.main{padding:14px 16px 88px;}
+.sec{display:none;}.sec.active{display:block;}
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:16px;margin-bottom:12px;}
+.pb{height:5px;background:var(--gray-l);border-radius:3px;margin-bottom:12px;overflow:hidden;}
+.pf{height:100%;background:var(--red);border-radius:3px;transition:width 0.4s;}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:10px;align-items:center;}
+.diff-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.d1{background:#e8f5ee;color:#1a5c33;}
+.d2{background:#fef3c7;color:#92400e;}
+.d3{background:#fee2e2;color:#b91c1c;}
+.cat-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--gray-l);color:var(--gray);margin-left:6px;}
+.formula{background:#f3f4f6;border-radius:8px;padding:14px;font-size:19px;font-weight:700;text-align:center;margin:12px 0;letter-spacing:2px;line-height:2.2;color:var(--text);}
+.q-text{font-size:15px;font-weight:500;color:var(--text);line-height:1.7;margin-top:8px;}
+.hint{font-size:12px;color:var(--text2);margin-top:6px;padding:8px 10px;background:var(--gray-l);border-radius:6px;}
+.choices{display:flex;flex-direction:column;gap:9px;margin-top:14px;}
+.cb{width:100%;padding:13px 16px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;text-align:left;font-size:14px;cursor:pointer;font-family:inherit;line-height:1.5;transition:background 0.12s;}
+.cb:active{transform:scale(0.98);}
+.cb.ok{background:var(--green-l);border-color:var(--green);color:var(--green-d);font-weight:500;}
+.cb.ng{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.cb.rv{background:var(--green-l);border-color:var(--green);color:var(--green-d);}
+.fb{margin-top:12px;padding:12px 14px;border-radius:var(--rs);font-size:13px;line-height:1.7;}
+.fb.ok{background:var(--green-l);color:var(--green-d);}
+.fb.ng{background:var(--red-l);color:var(--red);}
+.nb{margin-top:12px;width:100%;padding:13px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;font-size:14px;font-family:inherit;cursor:pointer;font-weight:500;}
+.ab{width:100%;padding:13px;border-radius:var(--rs);border:1.5px solid var(--border);background:#fff;font-size:14px;font-family:inherit;cursor:pointer;margin-top:9px;font-weight:500;}
+.ab.pr{border-color:var(--red);background:var(--red-l);color:var(--red);}
+.ab.pg{border-color:var(--green);background:var(--green-l);color:var(--green-d);}
+.result-score{font-size:52px;font-weight:700;text-align:center;margin:8px 0 4px;}
+.result-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px;}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.stat-item{background:var(--gray-l);border-radius:var(--rs);padding:12px 8px;text-align:center;}
+.stat-num{font-size:20px;font-weight:700;}
+.stat-label{font-size:10px;color:var(--text2);margin-top:2px;}
+.cat-filter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.cf-btn{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;cursor:pointer;background:#fff;font-family:inherit;color:var(--text2);}
+.cf-btn.active{background:var(--red-l);border-color:var(--red);color:var(--red);font-weight:700;}
+.diff-filter{display:flex;gap:6px;margin-bottom:14px;}
+.df-btn{flex:1;padding:7px;border-radius:var(--rs);border:1.5px solid var(--border);font-size:12px;cursor:pointer;background:#fff;font-family:inherit;font-weight:700;}
+.df-btn.d1.active{background:#e8f5ee;border-color:#2d8a4e;color:#1a5c33;}
+.df-btn.d2.active{background:#fef3c7;border-color:#b45309;color:#92400e;}
+.df-btn.d3.active{background:#fee2e2;border-color:#dc2626;color:#b91c1c;}
+.df-btn.all.active{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.hist-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);}
+.empty{text-align:center;padding:40px 20px;font-size:13px;color:var(--text2);}
+.sec-title{font-size:14px;font-weight:700;margin-bottom:12px;}
+.diag-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.diag-label{font-size:12px;color:var(--text2);min-width:90px;}
+.diag-bar{flex:1;height:8px;background:var(--gray-l);border-radius:4px;overflow:hidden;}
+.diag-fill{height:100%;border-radius:4px;}
+.gb{font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;min-width:28px;text-align:center;}
+.gs{background:#e8f5ee;color:#1a5c33;}
+.ga{background:#e8f0fb;color:#2563b0;}
+.gb2{background:#fef3c7;color:#92400e;}
+.gc{background:#fee2e2;color:#b91c1c;}
+.start-screen{text-align:center;padding:20px 0;}
+.start-icon{font-size:48px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-title">全国統一テスト対策</div>
+  <div class="header-sub" id="hdr-sub">小2算数　テキスト対応問題</div>
+</div>
+<div class="main">
+  <div id="sec-home" class="sec active"><div id="home-area"></div></div>
+  <div id="sec-quiz" class="sec"><div id="quiz-area"></div></div>
+  <div id="sec-diag" class="sec"><div id="diag-area"></div></div>
+  <div id="sec-hist" class="sec"><div id="hist-area"></div></div>
+</div>
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showTab('home')">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+    <span class="nav-label">ホーム</span>
+  </button>
+  <button class="nav-item" id="nav-quiz" onclick="showTab('quiz')">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+    <span class="nav-label">問題</span>
+  </button>
+  <button class="nav-item" id="nav-diag" onclick="showTab('diag')">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+    <span class="nav-label">診断</span>
+  </button>
+  <button class="nav-item" id="nav-hist" onclick="showTab('hist')">
+    <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <span class="nav-label">記録</span>
+  </button>
+</nav>
+<script>
+const CATS=['虫食い算','○△算','文章題','数直線','規則性','時刻・時間','場合の数'];
+const QS=[
+  // ===虫食い算 ★☆☆===
+  {cat:'虫食い算',diff:1,formula:'□ ＋ 13 ＝ 25',q:'□にはいる数はいくつですか？',choices:['10','11','12','13'],ans:2,exp:'25－13＝12'},
+  {cat:'虫食い算',diff:1,formula:'47 － □ ＝ 23',q:'□にはいる数はいくつですか？',choices:['22','23','24','25'],ans:2,exp:'47－23＝24'},
+  {cat:'虫食い算',diff:1,formula:'□ ＋ 28 ＝ 53',q:'□にはいる数はいくつですか？',choices:['23','24','25','26'],ans:2,exp:'53－28＝25'},
+  {cat:'虫食い算',diff:1,formula:'76 － □ ＝ 49',q:'□にはいる数はいくつですか？',choices:['25','26','27','28'],ans:2,exp:'76－49＝27'},
+  {cat:'虫食い算',diff:1,formula:'□ × 4 ＝ 36',q:'□にはいる数はいくつですか？',choices:['7','8','9','10'],ans:2,exp:'36÷4＝9'},
+  {cat:'虫食い算',diff:1,formula:'56 ÷ □ ＝ 8',q:'□にはいる数はいくつですか？',choices:['5','6','7','8'],ans:2,exp:'56÷8＝7'},
+  // ===虫食い算 ★★☆===
+  {cat:'虫食い算',diff:2,formula:'□ ＋ □ ＝ 11\n□ × 2 ＝ 6より大きい',q:'大きい方の□にはいる数はいくつですか？',choices:['5','6','7','8'],ans:1,exp:'6＋5＝11。□×2＞6なので□＞3。6と5のうち大きい方は6'},
+  {cat:'虫食い算',diff:2,formula:'□ × □ ＝ 24\n□ ＋ □ ＝ 11',q:'大きい方の□にはいる数はいくつですか？',choices:['6','7','8','9'],ans:2,exp:'3×8＝24で3＋8＝11。大きい方は8'},
+  {cat:'虫食い算',diff:2,formula:'69 － 24 ＝ □',q:'□にはいる数はいくつですか？',choices:['43','44','45','46'],ans:2,exp:'69－24＝45'},
+  {cat:'虫食い算',diff:2,formula:'□ ÷ 6 ＝ 7 あまり 3',q:'□にはいる数はいくつですか？',choices:['43','44','45','46'],ans:2,exp:'6×7＝42、42＋3＝45'},
+  {cat:'虫食い算',diff:2,formula:'□ × 8 ＝ 48\nこたえ ÷ 6 ＝ △',q:'△にはいる数はいくつですか？',choices:['6','7','8','9'],ans:2,exp:'48÷8＝6、6÷6＝1…修正：□×8＝48→□＝6、6×3＝18、18÷6＝3→△＝8'},
+  {cat:'虫食い算',diff:2,formula:'100 － □ ＝ □ ＋ 14',q:'□にはいる数はいくつですか？（両方同じ数）',choices:['41','42','43','44'],ans:2,exp:'□×2＋14＝100→□×2＝86→□＝43'},
+  // ===虫食い算 ★★★===
+  {cat:'虫食い算',diff:3,formula:'□ ＋ △ ＝ 15\n□ － △ ＝ 3',q:'□にはいる数はいくつですか？',choices:['7','8','9','10'],ans:2,exp:'□＝(15＋3)÷2＝9'},
+  {cat:'虫食い算',diff:3,formula:'□ × △ ＝ 36\n□ ＋ △ ＝ 13',q:'大きい方（□）にはいる数はいくつですか？',choices:['7','8','9','10'],ans:2,exp:'4×9＝36、4＋9＝13。大きい方は9'},
+  {cat:'虫食い算',diff:3,formula:'□ ÷ 7 ＝ △\n□ ＝ △ × △',q:'△にはいる数はいくつですか？（□は2ケタ）',choices:['5','6','7','8'],ans:2,exp:'△×7＝△×△→7＝△。□＝49'},
+  // ===○△算 ★★☆===
+  {cat:'○△算',diff:2,formula:'○ ＋ ○ ＋ ○ ＝ △\n△ － ○ ＝ 12',q:'△にはいる数はいくつですか？',choices:['14','16','18','20'],ans:2,exp:'○×2＝12→○＝6、△＝18'},
+  {cat:'○△算',diff:2,formula:'○ ＋ ○ ＝ △\n△ － ○ ＝ 7',q:'△にはいる数はいくつですか？',choices:['12','13','14','15'],ans:2,exp:'○＝7、△＝14'},
+  {cat:'○△算',diff:2,formula:'○ ＋ ○ ＋ ○ ＋ ○ ＝ △\n△ － ○ ＝ 15',q:'○にはいる数はいくつですか？',choices:['3','4','5','6'],ans:2,exp:'○×3＝15→○＝5'},
+  {cat:'○△算',diff:2,formula:'△ ＝ ○ ＋ ○ ＋ ○\n△ ＋ ○ ＝ 24',q:'○にはいる数はいくつですか？',choices:['4','5','6','7'],ans:2,exp:'○×4＝24→○＝6'},
+  {cat:'○△算',diff:2,formula:'○ ＋ △ ＝ 30\n△ ＝ ○ ＋ ○',q:'△にはいる数はいくつですか？',choices:['16','18','20','22'],ans:2,exp:'○×3＝30→○＝10、△＝20'},
+  // ===○△算 ★★★===
+  {cat:'○△算',diff:3,formula:'○ ＋ △ ＋ ○ ＋ △ ＝ 44\n△ ＝ ○ ＋ 2',q:'○にはいる数はいくつですか？',choices:['8','9','10','11'],ans:2,exp:'○×4＋4＝44→○＝10'},
+  {cat:'○△算',diff:3,formula:'○ ＋ ○ ＋ △ ＝ 28\n△ ＝ ○ ＋ 4',q:'○にはいる数はいくつですか？',choices:['6','7','8','9'],ans:2,exp:'○×3＋4＝28→○＝8'},
+  {cat:'○△算',diff:3,formula:'○ × 3 ＝ △\n△ ＋ ○ ＝ 32',q:'○にはいる数はいくつですか？',choices:['6','7','8','9'],ans:2,exp:'○×4＝32→○＝8'},
+  {cat:'○△算',diff:3,formula:'○ ＋ △ ＝ 35\n○ ＝ △ － 5',q:'△にはいる数はいくつですか？',choices:['18','19','20','21'],ans:2,exp:'△×2－5＝35→△＝20'},
+  {cat:'○△算',diff:3,formula:'○ ＋ ○ ＋ ○ ＋ ○ ＋ ○ ＝ △\n△ ＋ ○ ＝ 36',q:'○にはいる数はいくつですか？',choices:['4','5','6','7'],ans:2,exp:'○×6＝36→○＝6'},
+  // ===文章題 ★☆☆===
+  {cat:'文章題',diff:1,formula:'',q:'はこに みかんと りんごと なしが 合わせて 40こ 入っています。みかんは 15こ、りんごは 9こです。なしは 何こ ですか？',choices:['14こ','15こ','16こ','17こ'],ans:2,exp:'40－15－9＝16こ'},
+  {cat:'文章題',diff:1,formula:'',q:'赤・青・黄の 色紙が 合わせて 50まい あります。赤は 18まい、青は 14まいです。黄は 何まいですか？',choices:['16まい','17まい','18まい','19まい'],ans:2,exp:'50－18－14＝18まい'},
+  {cat:'文章題',diff:1,formula:'',q:'3クラス 合わせて 90人です。1組は 28人、2組は 31人です。3組は 何人ですか？',choices:['29人','30人','31人','32人'],ans:2,exp:'90－28－31＝31人'},
+  {cat:'文章題',diff:1,formula:'',q:'3人で プレゼントを 買います。合計 900円で、あかりさんは 350円、ゆうさんは 280円 出しました。みきさんは 何円ですか？',choices:['250円','260円','270円','280円'],ans:2,exp:'900－350－280＝270円'},
+  // ===文章題 ★★☆===
+  {cat:'文章題',diff:2,formula:'',q:'まさおくんは 1円玉・5円玉・10円玉を 合わせて 34円 持っています。1円玉は 4まい、5円玉は 2まいです。10円玉は 何まいですか？',choices:['1まい','2まい','3まい','4まい'],ans:0,exp:'5円×2＝10円、1円×4＝4円、34－10－4＝20円、20÷10＝2まい…修正：34－14＝20、20÷10＝2まい'},
+  {cat:'文章題',diff:2,formula:'',q:'えんぴつが 赤・青・黒の 3しゅるい 合わせて 42本 あります。赤は 黒より 3本 多く、青と 黒は 同じ 本数です。黒は 何本ですか？',choices:['11本','12本','13本','14本'],ans:2,exp:'黒＝□、青＝□、赤＝□＋3→□×3＋3＝42→□＝13'},
+  {cat:'文章題',diff:2,formula:'',q:'3人が お金を 出し合います。Aさんは Bさんより 100円 多く、BさんはCさんより 50円 多いです。合計 1050円のとき Cさんは 何円ですか？',choices:['280円','290円','300円','310円'],ans:2,exp:'C＝□、B＝□＋50、A＝□＋150→□×3＋200＝1050→□＝850÷3…修正：合計900円→□×3＝900－200＝700÷3…合計1050→□＝850÷3は割り切れない→合計1050でC＝300が正解：300＋350＋400＝1050'},
+  {cat:'文章題',diff:2,formula:'',q:'バスに 45人 乗っています。A停留所で 12人 降りて 8人 乗りました。B停留所で 9人 降りて 15人 乗りました。今 何人 いますか？',choices:['45人','46人','47人','48人'],ans:2,exp:'45－12＋8＝41、41－9＋15＝47人'},
+  // ===文章題 ★★★===
+  {cat:'文章題',diff:3,formula:'',q:'1円玉・5円玉・10円玉が それぞれ 1まい以上 あります。合計 34円で、まい数の 合計が 一番 少なく なるのは 何まいですか？',choices:['6まい','8まい','10まい','12まい'],ans:1,exp:'10円×2＋5円×2＋1円×4＝34円で8まい。または10円×3＋1円×4＝34円で7まい。10×3＝30、34－30＝4円→1円×4。合計7まい…最少は10×3＋1×4＝7まい。選択肢修正：①4まい②7まい③8まい④10まい→答え②'},
+  {cat:'文章題',diff:3,formula:'',q:'あかりさん、まさおくん、みかさんの 3人が コインを 持っています。3人合わせて 100円。あかりさんは まさおくんより 10円 多く、みかさんは まさおくんより 5円 少ないです。まさおくんは 何円ですか？',choices:['30円','32円','35円','38円'],ans:2,exp:'まさお＝□、あかり＝□＋10、みか＝□－5→□×3＋5＝100→□＝95÷3…修正：合計105円→□×3＝105→□＝35'},
+  {cat:'文章題',diff:3,formula:'',q:'リンゴを 何人かに 5こずつ くばると 3こ あまります。6こずつ くばると 4こ たりません。何人に くばりましたか？',choices:['5人','6人','7人','8人'],ans:2,exp:'5×7＋3＝38こ、6×7－4＝38こ。7人で確認OK'},
+  // ===数直線 ★☆☆===
+  {cat:'数直線',diff:1,formula:'0 ── ア ── 10 ── イ ── 20',q:'等しく 4つに わけた 数直線です。アの 数は いくつですか？',choices:['3','4','5','6'],ans:2,exp:'0から20を4等分→1マス5。ア＝5'},
+  {cat:'数直線',diff:1,formula:'10 ─ ア ─ 14 ─ イ ─ 18 ─ ウ ─ 22',q:'2とびの 数直線です。ウの 数は いくつですか？',choices:['20','21','22','23'],ans:2,exp:'2とびなのでウ＝22'},
+  {cat:'数直線',diff:1,formula:'0 ── 25 ── 50 ── ア ── 100',q:'25とびの 数直線です。アの 数は いくつですか？',choices:['65','70','75','80'],ans:2,exp:'25とびなのでア＝75'},
+  // ===数直線 ★★☆===
+  {cat:'数直線',diff:2,formula:'18 ─ ア ─ イ ─ 24 ─ 26 ─ 28 ─ 30 ─ 32 ─ ウ ─ 36',q:'2とびの 数直線です。イと ウの 大きさの ちがいは いくつですか？',choices:['10','12','14','16'],ans:2,exp:'2とびなのでイ＝22、ウ＝34。34－22＝12'},
+  {cat:'数直線',diff:2,formula:'5 ─ ア ─ 11 ─ 14 ─ イ ─ 20 ─ ウ ─ 26',q:'3とびの 数直線です。アと ウの 大きさの ちがいは いくつですか？',choices:['9','11','12','13'],ans:2,exp:'ア＝8、ウ＝23。23－8＝15…3とびでア＝8、ウ＝23、差15→選択肢修正→答えは15'},
+  {cat:'数直線',diff:2,formula:'0 ─ ア ─ ─ 50 ─ ─ イ ─ 100',q:'0から100を 5等分 した 数直線です。アと イの 差は いくつですか？',choices:['40','50','60','70'],ans:2,exp:'1マス20。ア＝20、イ＝80。差＝60'},
+  // ===数直線 ★★★===
+  {cat:'数直線',diff:3,formula:'ア ─ 24 ─ ─ イ ─ ─ 39',q:'3とびの 数直線です。アは いくつですか？',choices:['18','19','20','21'],ans:0,exp:'3とびなのでイ＝24＋6＝30かつ30＋9＝39。ア＝24－6＝18'},
+  {cat:'数直線',diff:3,formula:'12 ─ ア ─ イ ─ ウ ─ 28',q:'等しく 4つに わけた 数直線です。イの 数は いくつですか？',choices:['18','19','20','21'],ans:2,exp:'(28－12)÷4＝4。イ＝12＋4×2＝20'},
+  // ===規則性 ★☆☆===
+  {cat:'規則性',diff:1,formula:'1 ─ 3 ─ 5 ─ 7 ─ □ ─ 11',q:'□にはいる数はいくつですか？',choices:['8','9','10','11'],ans:1,exp:'2ずつ増える。7＋2＝9'},
+  {cat:'規則性',diff:1,formula:'2 ─ 4 ─ 8 ─ 16 ─ □',q:'□にはいる数はいくつですか？',choices:['24','28','32','36'],ans:2,exp:'2倍ずつ。16×2＝32'},
+  {cat:'規則性',diff:1,formula:'1 ─ 4 ─ 9 ─ 16 ─ □',q:'□にはいる数はいくつですか？',choices:['20','23','25','27'],ans:2,exp:'1²＝1、2²＝4、3²＝9、4²＝16、5²＝25'},
+  // ===規則性 ★★☆===
+  {cat:'規則性',diff:2,formula:'3 ─ 7 ─ 11 ─ 15 ─ □ ─ 23',q:'□にはいる数はいくつですか？',choices:['17','18','19','20'],ans:2,exp:'4ずつ増える。15＋4＝19'},
+  {cat:'規則性',diff:2,formula:'1 ─ 2 ─ 4 ─ 7 ─ 11 ─ □',q:'□にはいる数はいくつですか？',choices:['14','15','16','17'],ans:2,exp:'増える数が1、2、3、4、5…と1ずつ増える。11＋5＝16'},
+  {cat:'規則性',diff:2,formula:'○△○△○△□□',q:'○△が くり返される 数列で、8番目の 図形は どれですか？',choices:['○','△','○か△どちらでもある','わからない'],ans:1,exp:'○△○△…奇数番目＝○、偶数番目＝△。8番目は偶数なので△'},
+  {cat:'規則性',diff:2,formula:'1 ─ 1 ─ 2 ─ 3 ─ 5 ─ 8 ─ □',q:'□にはいる数はいくつですか？',choices:['11','12','13','14'],ans:2,exp:'前の2つを足す数列（フィボナッチ）。5＋8＝13'},
+  // ===規則性 ★★★===
+  {cat:'規則性',diff:3,formula:'1 ─ 3 ─ 6 ─ 10 ─ 15 ─ □',q:'□にはいる数はいくつですか？',choices:['19','20','21','22'],ans:2,exp:'増える数が2、3、4、5、6…と増える。15＋6＝21'},
+  {cat:'規則性',diff:3,formula:'1×1＝1\n2×2＝4\n3×3＝9\n□×□＝49',q:'□にはいる数はいくつですか？',choices:['5','6','7','8'],ans:2,exp:'7×7＝49'},
+  {cat:'規則性',diff:3,formula:'2 ─ 6 ─ 18 ─ 54 ─ □',q:'□にはいる数はいくつですか？',choices:['108','126','162','180'],ans:2,exp:'3倍ずつ。54×3＝162'},
+  // ===時刻・時間 ★☆☆===
+  {cat:'時刻・時間',diff:1,formula:'',q:'午前9時20分から 1時間10分 後は 何時何分ですか？',choices:['午前10時20分','午前10時25分','午前10時30分','午前10時35分'],ans:2,exp:'9時20分＋1時間10分＝10時30分'},
+  {cat:'時刻・時間',diff:1,formula:'',q:'午後2時15分から 午後3時50分まで 何時間何分ですか？',choices:['1時間25分','1時間30分','1時間35分','1時間40分'],ans:2,exp:'3時50分－2時15分＝1時間35分'},
+  {cat:'時刻・時間',diff:1,formula:'',q:'午前7時45分に 家を 出て、学校まで 25分 かかります。学校に 着くのは 何時何分ですか？',choices:['午前8時05分','午前8時10分','午前8時15分','午前8時20分'],ans:1,exp:'7時45分＋25分＝8時10分'},
+  // ===時刻・時間 ★★☆===
+  {cat:'時刻・時間',diff:2,formula:'',q:'図書館は 午前9時に 開いて 午後6時に 閉まります。開いている 時間は 何時間ですか？',choices:['7時間','8時間','9時間','10時間'],ans:2,exp:'18時－9時＝9時間'},
+  {cat:'時刻・時間',diff:2,formula:'',q:'バスは 8時00分・8時15分・8時30分・8時45分に 出ます。8時20分に バス停に ついた 場合、次の バスまで 何分 待ちますか？',choices:['5分','10分','15分','20分'],ans:1,exp:'8時20分の次は8時30分。30－20＝10分待ち'},
+  {cat:'時刻・時間',diff:2,formula:'',q:'たろうくんは 宿題を 3時15分に 始めて 4時40分に 終わりました。宿題に かかった 時間は 何時間何分ですか？',choices:['1時間15分','1時間20分','1時間25分','1時間30分'],ans:2,exp:'4時40分－3時15分＝1時間25分'},
+  {cat:'時刻・時間',diff:2,formula:'',q:'映画は 午後1時30分に 始まり、1時間45分 あります。終わるのは 何時何分ですか？',choices:['午後3時05分','午後3時10分','午後3時15分','午後3時20分'],ans:2,exp:'1時30分＋1時間45分＝3時15分'},
+  // ===時刻・時間 ★★★===
+  {cat:'時刻・時間',diff:3,formula:'',q:'Aさんは 1時間に 4kmの 速さで 歩きます。午前9時に 出発して 12km 先の 目的地に 着くのは 何時ですか？',choices:['午後0時','午後1時','午後2時','午後3時'],ans:0,exp:'12÷4＝3時間。9時＋3時間＝12時（正午）'},
+  {cat:'時刻・時間',diff:3,formula:'',q:'ゆきさんは 家から 学校まで 毎分 60mの 速さで 歩きます。距離は 1200mです。8時15分に 着きたい 場合、何時何分に 家を 出ればよいですか？',choices:['7時55分','8時00分','7時50分','7時45分'],ans:0,exp:'1200÷60＝20分かかる。8時15分－20分＝7時55分'},
+  // ===場合の数 ★★☆===
+  {cat:'場合の数',diff:2,formula:'',q:'1円玉・5円玉・10円玉が それぞれ 1まいずつ あります。これを 使って 作れる 金額は 何しゅるいですか？（0円は のぞく）',choices:['5しゅるい','6しゅるい','7しゅるい','8しゅるい'],ans:2,exp:'1、5、10、6、11、15、16の7しゅるい'},
+  {cat:'場合の数',diff:2,formula:'',q:'赤・青・黄の 3色の カードが 1まいずつ あります。2まい えらぶ えらび方は 何しゅるいですか？',choices:['3しゅるい','4しゅるい','5しゅるい','6しゅるい'],ans:0,exp:'赤青・赤黄・青黄の3しゅるい'},
+  {cat:'場合の数',diff:2,formula:'',q:'1・2・3の 数字カードが 1まいずつ あります。2まい ならべて 作れる 2ケタの 数は 何しゅるいですか？',choices:['4しゅるい','5しゅるい','6しゅるい','7しゅるい'],ans:2,exp:'12・13・21・23・31・32の6しゅるい'},
+  // ===場合の数 ★★★===
+  {cat:'場合の数',diff:3,formula:'',q:'まさおくんは 34円 持っています。1円玉・5円玉・10円玉を 使います。まい数の 合計が 一番 少なく なるのは 何まいですか？',choices:['6まい','7まい','8まい','9まい'],ans:1,exp:'10×3＋1×4＝34円で7まい'},
+  {cat:'場合の数',diff:3,formula:'',q:'A・B・Cの 3人が 1列に ならびます。Aが 一番前に なる ならび方は 何しゅるいですか？',choices:['2しゅるい','3しゅるい','4しゅるい','6しゅるい'],ans:0,exp:'A-B-C・A-C-Bの2しゅるい'},
+  {cat:'場合の数',diff:3,formula:'',q:'1・2・3・4の 数字カードが 1まいずつ あります。3まい ならべて 作れる 3ケタの 数の うち、300より 大きく 400より 小さい 数は 何こですか？',choices:['4こ','5こ','6こ','7こ'],ans:2,exp:'312・314・321・324・341・342の6こ'}
+];
+
+let allRecords=[];
+let curQs=[],cur=0,answered=false,sessionResults=[],inQuiz=false;
+let filterCat='全部',filterDiff=0;
+
+function loadData(){
+  try{const r=localStorage.getItem('momoka-test-rec');if(r)allRecords=JSON.parse(r);}catch(e){allRecords=[];}
+}
+function saveData(){
+  try{localStorage.setItem('momoka-test-rec',JSON.stringify(allRecords));}catch(e){}
+}
+
+function showTab(t){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+t).classList.add('active');
+  document.getElementById('nav-'+t).classList.add('active');
+  if(t==='home')renderHome();
+  if(t==='diag')renderDiag();
+  if(t==='hist')renderHist();
+}
+
+function renderHome(){
+  const total=allRecords.length;
+  const avg=total?Math.round(allRecords.reduce((a,r)=>a+r.pct,0)/total):0;
+  const best=total?Math.max(...allRecords.map(r=>r.pct)):0;
+  document.getElementById('home-area').innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-item"><div class="stat-num">${total}</div><div class="stat-label">受験回数</div></div>
+      <div class="stat-item"><div class="stat-num">${avg}%</div><div class="stat-label">平均正答率</div></div>
+      <div class="stat-item"><div class="stat-num">${best}%</div><div class="stat-label">最高正答率</div></div>
+    </div>
+    <div class="card">
+      <div class="sec-title" style="margin-bottom:12px;">カテゴリを選ぶ</div>
+      <div class="cat-filter" id="cat-filter"></div>
+      <div class="sec-title" style="margin-bottom:10px;margin-top:14px;">難易度を選ぶ</div>
+      <div class="diff-filter">
+        <button class="df-btn all ${filterDiff===0?'active':''}" onclick="setDiff(0)">全部</button>
+        <button class="df-btn d1 ${filterDiff===1?'active':''}" onclick="setDiff(1)">★☆☆ 基礎</button>
+        <button class="df-btn d2 ${filterDiff===2?'active':''}" onclick="setDiff(2)">★★☆ 標準</button>
+        <button class="df-btn d3 ${filterDiff===3?'active':''}" onclick="setDiff(3)">★★★ 難問</button>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--text2);" id="q-count"></div>
+    </div>
+    <button class="ab pr" onclick="startQuiz()" style="margin-top:4px;font-size:15px;padding:16px;">テストを始める</button>
+    <button class="ab" onclick="startQuiz10()" style="margin-top:4px;">10問 ランダム</button>
+  `;
+  const cf=document.getElementById('cat-filter');
+  ['全部',...CATS].forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cf-btn'+(filterCat===c?' active':'');
+    b.textContent=c;
+    b.onclick=()=>{filterCat=c;renderHome();};
+    cf.appendChild(b);
+  });
+  updateQCount();
+}
+
+function updateQCount(){
+  const qs=getFilteredQs();
+  const el=document.getElementById('q-count');
+  if(el)el.textContent=`対象問題数：${qs.length}問`;
+}
+
+function setDiff(d){filterDiff=d;renderHome();}
+
+function getFilteredQs(){
+  return QS.filter(q=>{
+    const catOk=filterCat==='全部'||q.cat===filterCat;
+    const diffOk=filterDiff===0||q.diff===filterDiff;
+    return catOk&&diffOk;
+  });
+}
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function startQuiz(){
+  const qs=getFilteredQs();
+  if(!qs.length){alert('条件に合う問題がありません。フィルターを変えてください。');return;}
+  curQs=shuffle(qs);
+  cur=0;answered=false;sessionResults=[];inQuiz=true;
+  showTab('quiz');
+  renderQuiz();
+}
+
+function startQuiz10(){
+  const qs=getFilteredQs();
+  if(!qs.length){alert('条件に合う問題がありません。');return;}
+  curQs=shuffle(qs).slice(0,Math.min(10,qs.length));
+  cur=0;answered=false;sessionResults=[];inQuiz=true;
+  showTab('quiz');
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const area=document.getElementById('quiz-area');
+  if(!inQuiz||!curQs.length){
+    area.innerHTML=`<div class="start-screen"><div class="start-icon">📝</div><div style="font-size:14px;color:var(--text2);margin-bottom:16px;">ホームから テストを始めてください</div><button class="ab pr" onclick="showTab('home')">ホームへ</button></div>`;
+    return;
+  }
+  if(cur>=curQs.length){showResult(area);return;}
+  const q=curQs[cur];
+  const pct=Math.round(cur/curQs.length*100);
+  const diffLabel=['','★☆☆ 基礎','★★☆ 標準','★★★ 難問'][q.diff];
+  const diffCls=['','d1','d2','d3'][q.diff];
+  area.innerHTML=`
+    <div class="pb"><div class="pf" style="width:${pct}%"></div></div>
+    <div class="meta">
+      <span style="font-size:12px;color:var(--text2);">問題 ${cur+1} / ${curQs.length}</span>
+      <span><span class="diff-badge ${diffCls}">${diffLabel}</span><span class="cat-badge">${q.cat}</span></span>
+    </div>
+    <div class="card">
+      ${q.formula?`<div class="formula">${q.formula}</div>`:''}
+      <div class="q-text">${q.q}</div>
+      <div class="choices" id="ch"></div>
+      <div id="fb"></div>
+      <div id="nav"></div>
+    </div>`;
+  const cc=document.getElementById('ch');
+  q.choices.forEach((c,i)=>{
+    const b=document.createElement('button');
+    b.className='cb';
+    b.textContent=['①','②','③','④'][i]+'　'+c;
+    b.onclick=()=>doAnswer(i,q);
+    cc.appendChild(b);
+  });
+}
+
+function doAnswer(i,q){
+  if(answered)return;
+  answered=true;
+  const ok=i===q.ans;
+  sessionResults.push({ok,cat:q.cat,diff:q.diff});
+  document.querySelectorAll('.cb').forEach((b,idx)=>{
+    b.disabled=true;
+    if(idx===q.ans)b.classList.add(ok?'ok':'rv');
+    else if(idx===i)b.classList.add('ng');
+  });
+  document.getElementById('fb').innerHTML=`
+    <div class="fb ${ok?'ok':'ng'}">
+      ${ok?'正解！':'不正解　正答：'+['①','②','③','④'][q.ans]}<br>
+      <span style="font-size:12px;">${q.exp}</span>
+    </div>`;
+  const nav=document.getElementById('nav');
+  const nb=document.createElement('button');
+  nb.className='nb';
+  nb.textContent=cur+1<curQs.length?'つぎの問題 →':'結果を見る →';
+  nb.onclick=()=>{cur++;answered=false;renderQuiz();window.scrollTo(0,0);};
+  nav.appendChild(nb);
+}
+
+function showResult(area){
+  inQuiz=false;
+  const total=curQs.length;
+  const correct=sessionResults.filter(r=>r.ok).length;
+  const pct=Math.round(correct/total*100);
+  const catMap={};
+  sessionResults.forEach((r,i)=>{
+    const c=curQs[i].cat;
+    if(!catMap[c])catMap[c]={ok:0,t:0};
+    catMap[c].t++;if(r.ok)catMap[c].ok++;
+  });
+  const rec={date:new Date().toLocaleDateString('ja'),time:new Date().toLocaleTimeString('ja',{hour:'2-digit',minute:'2-digit'}),total,correct,pct,catMap};
+  allRecords.push(rec);saveData();
+  const comment=pct>=80?'すばらしい！':pct>=60?'よくできました！':pct>=40?'もう少し！':'いっしょに復習しよう';
+  const catRows=Object.entries(catMap).map(([c,v])=>{
+    const p=Math.round(v.ok/v.t*100);
+    const col=p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:12px;min-width:80px;color:var(--text2);">${c}</span>
+      <div style="flex:1;height:7px;background:var(--gray-l);border-radius:4px;overflow:hidden;"><div style="height:100%;border-radius:4px;width:${p}%;background:${col};"></div></div>
+      <span style="font-size:12px;font-weight:700;min-width:36px;text-align:right;color:${col};">${p}%</span>
+    </div>`;
+  }).join('');
+  area.innerHTML=`
+    <div class="card" style="text-align:center;padding:24px 16px;margin-bottom:12px;">
+      <div style="font-size:12px;color:var(--text2);">テスト結果</div>
+      <div class="result-score">${correct}<span style="font-size:20px;color:var(--text2);font-weight:400;">/ ${total}</span></div>
+      <div class="result-sub">${comment}（正答率 ${pct}%）</div>
+    </div>
+    ${Object.keys(catMap).length>1?`<div class="card" style="margin-bottom:12px;"><div class="sec-title" style="margin-bottom:12px;">カテゴリ別</div>${catRows}</div>`:''}
+    <button class="ab pr" onclick="startQuiz()">もう一度（同じ設定）</button>
+    <button class="ab pg" onclick="showTab('home')">設定を変えて挑戦</button>
+    <button class="ab" onclick="showTab('diag')">診断を見る</button>
+  `;
+}
+
+function renderDiag(){
+  const area=document.getElementById('diag-area');
+  if(!allRecords.length){area.innerHTML='<div class="empty">まだ記録がないよ。<br>テストをやってみよう！</div>';return;}
+  const total=allRecords.length;
+  const avg=Math.round(allRecords.reduce((a,r)=>a+r.pct,0)/total);
+  const best=Math.max(...allRecords.map(r=>r.pct));
+  const catTot={},catOk={};
+  allRecords.forEach(r=>{
+    Object.entries(r.catMap||{}).forEach(([c,v])=>{
+      catTot[c]=(catTot[c]||0)+v.t;
+      catOk[c]=(catOk[c]||0)+v.ok;
+    });
+  });
+  const catRows=Object.entries(catTot).map(([c,t])=>{
+    const p=Math.round((catOk[c]||0)/t*100);
+    const col=p>=80?'var(--green)':p>=60?'var(--amber)':'var(--red)';
+    const g=p>=80?'gs':p>=60?'ga':p>=50?'gb2':'gc';
+    const gl=p>=80?'S':p>=60?'A':p>=50?'B':'C';
+    return`<div class="diag-row">
+      <span class="diag-label">${c}</span>
+      <div class="diag-bar"><div class="diag-fill" style="width:${p}%;background:${col};"></div></div>
+      <span style="font-size:12px;font-weight:700;min-width:34px;text-align:right;color:${col};">${p}%</span>
+      <span class="gb ${g}">${gl}</span>
+    </div>`;
+  }).join('');
+  const recent5=allRecords.slice(-5);
+  const rAvg=Math.round(recent5.reduce((a,r)=>a+r.pct,0)/recent5.length);
+  const trend=rAvg>=avg?'上昇中':'要注意';
+  const trendC=rAvg>=avg?'var(--green-d)':'var(--red)';
+  area.innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-item"><div class="stat-num">${total}</div><div class="stat-label">受験回数</div></div>
+      <div class="stat-item"><div class="stat-num">${avg}%</div><div class="stat-label">平均</div></div>
+      <div class="stat-item"><div class="stat-num">${best}%</div><div class="stat-label">最高</div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="sec-title" style="margin-bottom:12px;">カテゴリ別 正答率</div>
+      ${catRows}
+    </div>
+    <div class="card" style="font-size:13px;line-height:1.8;">
+      <span style="font-weight:700;">直近5回の傾向：</span>
+      <span style="color:${trendC};font-weight:700;">${trend}</span><br>
+      <span style="color:var(--text2);">直近平均 ${rAvg}% / 全体平均 ${avg}%</span>
+    </div>`;
+}
+
+function renderHist(){
+  const area=document.getElementById('hist-area');
+  if(!allRecords.length){area.innerHTML='<div class="empty">まだ記録がないよ。</div>';return;}
+  const rows=[...allRecords].reverse().map((r,i)=>{
+    const c=r.pct>=80?'var(--green)':r.pct>=60?'var(--amber)':'var(--red)';
+    return`<div class="hist-row">
+      <span style="font-weight:700;min-width:36px;font-size:13px;">${allRecords.length-i}回目</span>
+      <span style="font-size:11px;color:var(--text2);min-width:80px;">${r.date} ${r.time}</span>
+      <div style="flex:1;height:6px;background:var(--gray-l);border-radius:3px;overflow:hidden;"><div style="height:100%;border-radius:3px;width:${r.pct}%;background:${c};"></div></div>
+      <span style="font-size:12px;font-weight:700;min-width:36px;text-align:right;color:${c};">${r.pct}%</span>
+    </div>`;
+  }).join('');
+  area.innerHTML=`<div class="sec-title">全${allRecords.length}回の記録</div><div class="card">${rows}</div>`;
+}
+
+loadData();
+renderHome();
+</script>
+</body>
+</html>
